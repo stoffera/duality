@@ -22,6 +22,7 @@ Index
 	1. [Serve static files](#a-quick-example)
 	* [Routes](#defining-routes)
 	* [Serving content of a file](#serving-content-of-a-file)
+	* [Sessions](#sessions)
 	* [Access Control](#access-control)
 		1. [Login method](#login-method)
 		* [Callbacks](#callbacks)
@@ -142,9 +143,12 @@ If you are inside a function called by a route, you may need to serve an entire 
 	/* start the server */
 	var server = duality.createServer("/var/www", routes);
 
-The `serveFile` method work well with large files and ranges of files. Clients can use HTTP headers to only quire a specific portion of the file. The `serveFile` handles this case by only serving the request file portion.
+The `serveFile` method work well with large files and ranges of files. Clients can use HTTP headers to only query a specific portion of the file. The `serveFile` handles this case by only serving the requested file portion.
 
 Furthermore `serveFile` implements caching of responses. The clients can include headers to tell they only want the file, if it has changed since last visit. This is handled by returning the *Not Modified* response.
+
+### Sessions
+To be written...
 
 ###Access Control
 To be written...
