@@ -17,9 +17,15 @@ Then use method no. 2 to provide you WebApp with specific processed data.
 Index
 ========
 1. [Features](#features)
-2. [Documentation](#Docs)
+* [Documentation](#documentation)
+	1. [Serve static files](#a-quick-example)
+	* [Routes](#defining-routes)
+	* [Access Control](#access-control)
+		1. [Login method](#login-method)
+		* [Callbacks](#callbacks)
+* [API Reference](#api-reference)
 
-Features		{#features}
+Features
 ========
 
 Duality has the simplicity of the standard node.js HTTP Server. In fact, it is build on top of it.  
@@ -34,11 +40,11 @@ But more important it gives you convenient extra functionalities not found in no
 ALong with these features comes a lot of handy options you can control. Such as the server identification header and the sessions cookie name.
 
 
-Documentation		{#docs}
+Documentation
 ==========
 It is easy to setup Duality for whatever web service you need. Let first see:
 
-####A quick example		{#sub:statics}
+####A quick example
 A simple static server, that just server files from a directory:
 
 	var duality = require('duality');
@@ -48,10 +54,16 @@ And that is it. A duality server instance now serves every file found inside `/v
 
 Lets say you are hosting a blog through the duality server. All static files like html, js, css and images gets served by the static method. Now functions for returning a list of posts and individual posts are needed. To do this duality can bind specific URLs to function callbacks. This is done by:
 
-####Defining routes		{#sub:derfine_routes}
+####Defining routes
 
 
-API Reference		{#sec:api_ref}
+###Access Control
+
+####Login Method
+
+####Callbacks
+
+API Reference
 =============
 
 To create a server use the function `createServer()`, this will create an instance of the duality server object.
