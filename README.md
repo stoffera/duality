@@ -14,9 +14,14 @@ These ways are:
 Serve your **HTML**, **JS**, **CSS**, etc. through method no. 1.  
 Then use method no. 2 to provide you WebApp with specific processed data.
 
-
-Features
+Index
 ========
+1. [Features](#features)
+2. [Documentation](#Docs)
+
+Features		{#features}
+========
+
 Duality has the simplicity of the standard node.js HTTP Server. In fact, it is build on top of it.  
 But more important it gives you convenient extra functionalities not found in node's standard HTTP server.
 
@@ -29,17 +34,24 @@ But more important it gives you convenient extra functionalities not found in no
 ALong with these features comes a lot of handy options you can control. Such as the server identification header and the sessions cookie name.
 
 
-A Quick Example
+Documentation		{#docs}
 ==========
+It is easy to setup Duality for whatever web service you need. Let first see:
 
+####A quick example		{#sub:statics}
 A simple static server, that just server files from a directory:
 
 	var duality = require('duality');
 	var server = duality.createServer("/var/www");
 
-And that is it. A duality server instance now serves `/var/www/`.
+And that is it. A duality server instance now serves every file found inside `/var/www/`. Note that directory listing is not supported by duality at this point.
 
-API Reference
+Lets say you are hosting a blog through the duality server. All static files like html, js, css and images gets served by the static method. Now functions for returning a list of posts and individual posts are needed. To do this duality can bind specific URLs to function callbacks. This is done by:
+
+####Defining routes		{#sub:derfine_routes}
+
+
+API Reference		{#sec:api_ref}
 =============
 
 To create a server use the function `createServer()`, this will create an instance of the duality server object.
@@ -53,6 +65,16 @@ If you just want a static file server, then omit the routes table parameter. The
 * **routes** *Object* (OPTIONAL) A dictionary of regex string and corrosponding functions.
 * **options** *Object* (OPTIONAL) A dictionary of extra options to the server
 * **return** *duality* An instance of the duality server class.
+
+#### Routes
+If you what duality to bind a function to a URL you must provide a route. A route is a regexp formatted string and a function. The concept is properly best explained with an exmaple:
+
+	var routes = {
+		"^/posts/(\\n+)" : getPost,
+		"^/posts/?$" : getPostIndex
+	};
+
+Duality will parse each string into a regular expression and check all request URL's against them. Notice how the backslash is double escaped. You must do this because the string is parsed into a regexp, causing the escape characters to be parsed twice. The functions related to the regexp's receive three arguments: a basic java script `string.match` object, a `http.ServerRequest` object and a `http.ServerResponse` object. If you define regions with parentheses in the regexp, then these will available in the `match` object. In this way you can pass parameters to the function, from the parsed URL.
 
 ####Options Available
 Here are the list of optional options to pass to the server:
