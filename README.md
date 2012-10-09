@@ -14,6 +14,21 @@ These ways are:
 Serve your **HTML**, **JS**, **CSS**, etc. through method no. 1.  
 Then use method no. 2 to provide you WebApp with specific processed data.
 
+Features
+========
+
+Duality has the simplicity of the standard node.js HTTP Server. In fact, it is build on top of it.  
+But more important it gives you convenient extra functionalities not found in node's standard HTTP server.
+
+* **Partial Content**. Clients can request only a specific range from a file. This is by default supported.
+* **Session support**. Just set the `useSessions` flag, and the server tracks every request with sessions.
+* **Access Control**. Turn on access control and provide a callback function that gets called on every access request. This allows easy and fine grain control of which user (session) has access to which resource.
+* **Authentication**. Provide a login redirect URL or use the build in HTTP Authentication. (The digest variant)
+* **Caching** Duality supports the HTTP cache scheme, where only changed are transmitted. Bandwidth is not wasted on files not changed since last request.
+* **Access logging**. If you wish, every access can be written to stdout.
+
+Along with these features comes a lot of handy options you can control. Such as the server identification header and the sessions cookie name.
+
 Index
 ========
 1. [Features](#features)
@@ -28,20 +43,6 @@ Index
 		* [Callbacks](#callbacks)
 * [API Reference](#api-reference)
 	1. [Object Methods](#object-methods)
-
-Features
-========
-
-Duality has the simplicity of the standard node.js HTTP Server. In fact, it is build on top of it.  
-But more important it gives you convenient extra functionalities not found in node's standard HTTP server.
-
-* **Partial Content**. Clients can request only a specific range from a file. This is by default supported.
-* **Session support**. Just set the `useSessions` flag, and the server tracks every request with sessions.
-* **Access Control**. Turn on access control and provide a callback function that gets called on every access request. This allows easy and fine grain control of which user (session) has access to which resource.
-* **Authentication**. Provide a login redirect URL or use the build in HTTP Authentication. (The digest variant)
-* **Access logging**. If you wish, every access can be written to stdout.
-
-ALong with these features comes a lot of handy options you can control. Such as the server identification header and the sessions cookie name.
 
 Installation
 ============
@@ -182,7 +183,7 @@ If you what duality to bind a function to a URL you must provide a route. A rout
 Duality will parse each string into a regular expression and check all request URL's against them. Notice how the backslash is double escaped. You must do this because the string is parsed into a regexp, causing the escape characters to be parsed twice. The functions related to the regexp's receive three arguments: a basic java script `string.match` object, a `http.ServerRequest` object and a `http.ServerResponse` object. If you define regions with parentheses in the regexp, then these will available in the `match` object. In this way you can pass parameters to the function, from the parsed URL.
 
 ####Options Available
-Here are the list of optional options to pass to the server:
+Here is the list of optional options to pass to the server:
 
 * **serverPort** *number* The listening port of the server. Multiple server instances can listen on different ports. Default: 8080
 * **useSessions** *boolean* Enable sessions on the server. Each request will be identified with a session. Default: TRUE
