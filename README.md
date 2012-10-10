@@ -48,7 +48,9 @@ Installation
 ============
 Download the `duality.js` file and place it in the working directory of you node.js project. Include the duality module in the file that should use the server:
 
-	var duality = require('./duality.js');
+```javascript
+var duality = require('./duality.js');
+```
 
 Now the `duality` is defined in the global context. See the [API Reference](#api-reference) for the list of defined functions.
 
@@ -59,8 +61,10 @@ It is easy to setup Duality for whatever web service you need. Let first see:
 ####A quick example
 A simple static server, that just server files from a directory:
 
+```javascript
 	var duality = require('duality');
 	var server = duality.createServer("/var/www");
+```
 
 And that is it. A duality server instance now serves every file found inside `/var/www/`. Note that directory listing is not supported by duality at this point.
 
@@ -71,6 +75,7 @@ The routes table is a JSON object that bind regular expressions to functions. Th
 
 We define a regexp for extracting a list of posts in a blog, like this: `"^/posts/?$"`. This means any URL of the form: `/posts` or `/posts/` will match the regex. We define a function to extract all posts from a data store:
 
+```javascript
 	var getAllPosts = function(match, req, res) {
 		
 		/* Code to extract post data */
@@ -79,20 +84,24 @@ We define a regexp for extracting a list of posts in a blog, like this: `"^/post
 		res.writeHead(200, {'Content-Type':'application/json'});
 		res.end(json_string);
 	};
+```
 
 The defined function is now mapped to a URL in the a route table:
 
+```javascript
 	var routes = {
 		"^/posts/?$" : getAllPosts
 	};
 	
 	/* create and start the server */
 	var server = duality.createServer("/var/www",routes);
+```
 
 Now Duality will automatically call `getAllPosts` everytime the request URL matches the regexp. The three arguments passed to the function are a regular expression `match` object, and node.js' `http.ServerRequest` and `http.ServerResponse` objects.
 
 Next we want to get individual blog posts in a RESTful manner like: `/posts/[id]`. To do this the function called from the routing table must receive parameters extracted from the regexp. Extracting parameters is done with parenthesis in the regexp, and by quering the `match` object. (Please refer to the [JS docs](http://www.w3schools.com/jsref/jsref_match.asp) on how to do this.) First we add the new function to the routing table:
 
+```javascript
 	var routes = {
 		"^/posts/?$" : getAllPosts,
 		"^/posts/(\\n+)" : getPost
@@ -100,11 +109,13 @@ Next we want to get individual blog posts in a RESTful manner like: `/posts/[id]
 	
 	/* create and start the server */
 	var server = duality.createServer("/var/www",routes);
+```
 
 First notice the double escaped backslashes. Because Duality will take the string and create a JS `RegExp` object from it, it is parsed twice. First when the JS interpreter read your code, second when the `RegExp` object initializes from the string. This means you **must** double escape you characters for the route to work properly.
 
 Now to extract the post id from the URL, we have added the parenthesis around the numeric character wildcard. This will pass the post id to the `getPost` function as a part of the `match` object. In the function it is easily extracted:
 
+```javascript
 	var getPost = function(match, req, res) {
 		var id = match[1];
 		
@@ -114,6 +125,7 @@ Now to extract the post id from the URL, we have added the parenthesis around th
 		res.writeHead(200,{'Content-Type':'application/json'});
 		res.end(json_string);
 	};
+```
 
 Now we can serve blog posts from functions and static files directly from the disk. But often you will need to send the content of a file to the client, from within a route function. Lets look at that next:
 
@@ -130,6 +142,7 @@ If you are inside a function called by a route, you may need to serve an entire 
 
 `serveFile` does not return any value, and works asynchronous. After calling the function on the server object instance, you should not touch the `http.ServerResponse` object. Here is a example on how the function works:
 
+```javascript
 	var getCachedPost = function(match, req, res) {
 		/* get the path of the file containing the cached post */
 		var path = getTheCachePath( ... );
@@ -143,6 +156,7 @@ If you are inside a function called by a route, you may need to serve an entire 
 	
 	/* start the server */
 	var server = duality.createServer("/var/www", routes);
+```
 
 The `serveFile` method work well with large files and ranges of files. Clients can use HTTP headers to only query a specific portion of the file. The `serveFile` handles this case by only serving the requested file portion.
 
@@ -162,7 +176,7 @@ API Reference
 
 To create a server use the function `createServer()`, this will create an instance of the duality server object.
 
-###`createServer( server_directory [, routes, options] )`
+####`createServer( server_directory [, routes, options] )`
 Return a new server object, serving the folder found at `server_directory`. Every file in this directory is served.
 If you defined any routes in the optional `routes` object, then these functions will be called when the request URL match.
 If you just want a static file server, then omit the routes table parameter. The server takes an options object. You can set additional server parameters through this object.
@@ -172,17 +186,19 @@ If you just want a static file server, then omit the routes table parameter. The
 * **options** *Object* (OPTIONAL) A dictionary of extra options to the server
 * **return** *duality* An instance of the duality server class.
 
-#### Routes
+##### Routes
 If you what duality to bind a function to a URL you must provide a route. A route is a regexp formatted string and a function. The concept is properly best explained with an exmaple:
 
+```javascript
 	var routes = {
 		"^/posts/(\\n+)" : getPost,
 		"^/posts/?$" : getPostIndex
 	};
+```
 
 Duality will parse each string into a regular expression and check all request URL's against them. Notice how the backslash is double escaped. You must do this because the string is parsed into a regexp, causing the escape characters to be parsed twice. The functions related to the regexp's receive three arguments: a basic java script `string.match` object, a `http.ServerRequest` object and a `http.ServerResponse` object. If you define regions with parentheses in the regexp, then these will available in the `match` object. In this way you can pass parameters to the function, from the parsed URL.
 
-####Options Available
+#####Options Available
 Here is the list of optional options to pass to the server:
 
 * **serverPort** *number* The listening port of the server. Multiple server instances can listen on different ports. Default: 8080
@@ -198,7 +214,7 @@ Here is the list of optional options to pass to the server:
 * **httpAuthLoginSuccessCallback** *function* Callback to tell a HTTP Auth login succeeded. Default: NULL
 * **httpAuthLoginFailedCallback** *function* Callback to tell a HTTP Auth login failed. Default: NULL
 
-###`getHttpAuthUserDigest( user, realm, password )`
+####`getHttpAuthUserDigest( user, realm, password )`
 Global function to create the HTTP Auth Digest HASH of Username:Realm:password if you know what Realm to use, then this function can be used to create hashes to store in a user table. This will eliminate the need to store the password in clear text.
 
 * **username** *string* The username, which is a part of the hash
@@ -211,7 +227,7 @@ Global function to create the HTTP Auth Digest HASH of Username:Realm:password i
 ## Object Methods
 Once the server object is created, these methods can be called on the object.
 
-###`serveFile( path , req, res [, dont_detect_content_type, attachment])`
+####`serveFile( path , req, res [, dont_detect_content_type, attachment])`
 Serve the content of any file on the disk. This method is used by the internal static files serving. You can also call this function from you own code to serve any file you like. Partial content ranges are supported, so only part of the file is served, if request by the client.
 
 * **filePath** *string* path to the file that should be served
@@ -220,7 +236,7 @@ Serve the content of any file on the disk. This method is used by the internal s
 * **opt\_dont\_detect\_content\_type** *boolean*  (OPTIONAL) Set this to true to avoid auto detection and setting of content-type header
 * **opt_attachment** *boolean* (OPTIONAL) Set this to TRUE to tell the browser to serve the file as a download
 
-### `httpAuthHash( username, password )`
+#### `httpAuthHash( username, password )`
 Create a hash to use with the HTTP Authentication Digest for the server. If you maintain a list of users and their passwords (in clear text), then use this method inside the `httpAuthUserLookupCallback` function to return a valid hash for the HTTP Auth digest. (Not recommended)
 
 A way better approach is to pre-hash the users password, either with this method or `getHttpAuthUserDigest()`. Then only store the hashed password in your users table.
