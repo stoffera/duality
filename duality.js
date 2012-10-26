@@ -48,10 +48,10 @@ var duality = function(serve_directory, opt_routes_table, opt_options) {
 	//Assign any options provided
 	if (opt_options) {
 		this.serverPort = opt_options['serverPort'] || this.serverPort;
-		this.useSessions = opt_options['useSessions'] || this.useSessions;
+		this.useSessions = opt_options['useSessions']!=undefined ? opt_options['useSessions'] : this.useSessions;
 		this.sessionIdentifier = opt_options['sessionIdentifier'] || this.sessionIdentifier;
 		this.serverString = opt_options['serverString'] || this.serverString;
-		this.useAccessLog = opt_options['useAccessLog'] || this.useAccessLog;
+		this.useAccessLog = opt_options['useAccessLog'] != undefined ? opt_options['useAccessLog'] : this.useAccessLog;
 		this.useAccessControl = opt_options['useAccessControl'] || this.useAccessControl;
 		this.accessLoginUrl = opt_options['accessLoginUrl'] || this.accessLoginUrl;
 		this.accessResourceCallback = opt_options['accessResourceCallback'] || this.accessResourceCallback;
