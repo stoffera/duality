@@ -515,6 +515,12 @@ duality.prototype.serveFile = function(filePath, req, res, opt_dont_detect_conte
 		
 			res.writeHead((start==0?200:206),header);
 			stream.pipe(res);
+			
+			
+			//make sure to clean up file resource on response end
+			res.on('close', function(){
+				stream.destroy();
+			});
 		}
 	});
 };
