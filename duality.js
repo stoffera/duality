@@ -47,14 +47,12 @@ var duality = function(serve_directory, opt_routes_table, opt_options) {
 	
 	//Parse the routes to include method options
 	for (var r in this.routes) {
-		var route = this.routes[r];
-		
 		//should we parse it to extended format?
-		if (typeof(route) == 'function') {
-			route = {func:route, method:'any'};
+		if (typeof(this.routes[r]) == 'function') {
+			this.routes[r] = {func:this.routes[r], method:'any'};
 		}
-		else if (typeof(route) == 'object') {
-			if (!(route['func'] && route['method'])) {
+		else if (typeof(this.routes[r]) == 'object') {
+			if (!(this.routes[r]['func'] && this.routes[r]['method'])) {
 				throw("Malformed route object. Must be: {func: function, method: string}");
 			}
 		}
@@ -273,9 +271,14 @@ duality.prototype.incomeRequest = function(req, res) {
 	for (var route in this.routes) {
 		var match = req.url.match(route);
 		if (match != null) {
-			this.routes[route].call(this, match, req, res);
-			matched = true;
-			break;
+			if (this.routes[route].method.toLowerCase() == req.method.toLowerCase()
+				|| this.routes[route].method.toLowerCase() == "any" 
+				|| this.routes[route].method.toLowerCase() == "all")
+			{
+				this.routes[route].func.call(this, match, req, res);
+				matched = true;
+				break;
+			}
 		}
 	}
 	
@@ -626,4 +629,4 @@ exports.getHttpAuthUserDigest = function(username, realm, password) {
 * The vurrent release of Duality
 * @type {number}
 */
-exports.VERSION = 0.8;
+exports.VERSION = 0.9;
