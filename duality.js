@@ -45,6 +45,24 @@ var duality = function(serve_directory, opt_routes_table, opt_options) {
 	//Assign empty routing table or the provided one
 	this.routes = !opt_routes_table ? {} : opt_routes_table;
 	
+	//Parse the routes to include method options
+	for (var r in this.routes) {
+		var route = this.routes[r];
+		
+		//should we parse it to extended format?
+		if (typeof(route) == 'function') {
+			route = {func:route, method:'any'};
+		}
+		else if (typeof(route) == 'object') {
+			if (!(route['func'] && route['method'])) {
+				throw("Malformed route object. Must be: {func: function, method: string}");
+			}
+		}
+		else {
+			throw("Malformed route object. Must be: {func: function, method: string}");
+		}
+	}
+	
 	//Assign any options provided
 	if (opt_options) {
 		this.serverPort = opt_options['serverPort'] || this.serverPort;
