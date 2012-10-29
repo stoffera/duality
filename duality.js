@@ -551,7 +551,7 @@ duality.prototype.serveFile = function(filePath, req, res, opt_dont_detect_conte
 		//Async we have file details, setup response headers
 		var start = 0;
 		var partial = false;
-		var end = parseInt(stat.size,10)-1;
+		var end = parseInt(stat.size,10)==0?0:parseInt(stat.size,10)-1;
 		var fileType = d.path.extname(filePath).substr(1);
 	
 		//Setup header
@@ -584,7 +584,7 @@ duality.prototype.serveFile = function(filePath, req, res, opt_dont_detect_conte
 			if (match[2] != undefined && match[2] != '')
 				end = parseInt(match[2],10);
 		}
-		var length = end - start + 1;
+		var length = (end == 0 && start == 0) ? 0 : (end - start + 1);
 		var stream = d.fs.createReadStream(filePath,{
 			flags: 'r',
 			encoding: null,
