@@ -372,6 +372,75 @@ duality.prototype.checkLogin = function(req, res) {
 };
 
 /**
+* Adds an entry to the routes table, serving only
+* GET requests. If an existing route matching to one you try to add
+* it will be overwritten.
+*
+* @param {string} Doubled escape route regex
+* @param {function(Object, http.ServerRequest, http.ServerResponse)}
+* @public
+*/
+duality.prototype.get = function(regexString, func) {
+	this.routes[regexString] = {
+		func: func,
+		method: 'get'
+	};
+};
+
+/**
+* Adds an entry to the routes table, serving only
+* POST requests. If an existing route matching to one you try to add
+* it will be overwritten.
+* A fourth parameter is passed to the callback function. This is the contains of any
+* existing POST form data.
+*
+* @param {string} Doubled escape route regex
+* @param {function(Object, http.ServerRequest, http.ServerResponse)}
+* @public
+*/
+duality.prototype.post = function(regexString, func) {
+	this.routes[regexString] = {
+		func: func,
+		method: 'post'
+	};
+};
+
+
+/**
+* Adds an entry to the routes table, serving any
+* requests type. If an existing route matching to one you try to add
+* it will be overwritten.
+*
+* @param {string} Doubled escape route regex
+* @param {function(Object, http.ServerRequest, http.ServerResponse)}
+* @public
+*/
+duality.prototype.any = function(regexString, func) {
+	this.routes[regexString] = {
+		func: func,
+		method: 'any'
+	};
+};
+
+
+/**
+* Adds an entry to the routes table, serving only
+* PUT requests. If an existing route matching to one you try to add
+* it will be overwritten.
+*
+* @param {string} Doubled escape route regex
+* @param {function(Object, http.ServerRequest, http.ServerResponse)}
+* @public
+*/
+duality.prototype.put = function(regexString, func) {
+	this.routes[regexString] = {
+		func: func,
+		method: 'put'
+	};
+};
+
+
+/**
 * Create a HASH to use with the HTTP AUth for this server. A list of allowed users for 
 * this server, can store the hashed value, instead of the passwords in clear text.
 * @public
@@ -382,6 +451,7 @@ duality.prototype.checkLogin = function(req, res) {
 duality.prototype.httpAuthHash = function(username, password) {
 	return exports.getHttpAuthUserDigest(username, this.httpAuthRealm, password);
 };
+
 
 /**
 * Parse the content of the HTTP Auth digest header
