@@ -29,6 +29,19 @@
 */
 
 /**
+* Libraries used by the duality server
+* @private
+* @type {Object}
+*/
+var d = {
+	http: require('http'),
+	fs: require('fs'),
+	url: require('url'),
+	path: require('path'),
+	crypt: require('crypto')
+};
+
+/**
 * Initialize and return a new duality server object
 * This can not be called directly. From you application 
 * use the createServer() function.
@@ -40,7 +53,7 @@
 * @author Kristoffer Andersen
 */
 var duality = function(serve_directory, opt_routes_table, opt_options) {
-	this.serveDirectory = serve_directory;
+	this.serveDirectory = d.path.resolve(__dirname,serve_directory);
 	
 	//Assign empty routing table or the provided one
 	this.routes = !opt_routes_table ? {} : opt_routes_table;
@@ -86,19 +99,6 @@ var duality = function(serve_directory, opt_routes_table, opt_options) {
 	this.http.listen(this.serverPort);
 	
 	console.log(this.serverString+" server listening on port "+this.serverPort+"...");
-};
-
-/**
-* Libraries used by the duality server
-* @private
-* @type {Object}
-*/
-var d = {
-	http: require('http'),
-	fs: require('fs'),
-	url: require('url'),
-	path: require('path'),
-	crypt: require('crypto')
 };
 
 /**
