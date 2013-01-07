@@ -252,8 +252,8 @@ duality.prototype.incomeRequest = function(req, res) {
 				var nonce = req.currentSession.id;
 				var opaque = req.currentSession.id+"abcdef";
 				res.setHeader("WWW-Authenticate","Digest realm=\"Login\",qop=\"auth,auth-int\",nonce=\""+nonce+"\",opaque=\""+opaque+"\"");
-				res.writeHead(401,{'Content-Type':'text/html'});
-				res.end("<h1>Access Denied</h1><p>You do not have access to the requested page.</p>");
+				
+                this.accessDenied(req, res);
 				return;
 			}
 			else {
@@ -302,8 +302,7 @@ duality.prototype.staticServe = function(url, req, res) {
 	var self = this;
 	d.fs.exists(d.path.join(this.serveDirectory,url.pathname),function(exists){
 		if (!exists) {
-			res.writeHead(404,{'Content-Type':'text/html'});
-			res.end("<h1>File not found</h1><p>The requested file was not found on the server.</p>");
+			self.notFound(req, res);
 			return;
 		}
 		else {
@@ -376,8 +375,8 @@ duality.prototype.checkLogin = function(req, res) {
 * GET requests. If an existing route matching to one you try to add
 * it will be overwritten.
 *
-* @param {string} Doubled escape route regex
-* @param {function(Object, http.ServerRequest, http.ServerResponse)}
+* @param {string} regexString Doubled escape route regex
+* @param {function(Object, http.ServerRequest, http.ServerResponse)} func
 * @public
 */
 duality.prototype.get = function(regexString, func) {
@@ -394,8 +393,8 @@ duality.prototype.get = function(regexString, func) {
 * A fourth parameter is passed to the callback function. This is the contains of any
 * existing POST form data.
 *
-* @param {string} Doubled escape route regex
-* @param {function(Object, http.ServerRequest, http.ServerResponse)}
+* @param {string} regexString Doubled escape route regex
+* @param {function(Object,http.ServerRequest,http.ServerResponse)} func
 * @public
 */
 duality.prototype.post = function(regexString, func) {
@@ -411,8 +410,8 @@ duality.prototype.post = function(regexString, func) {
 * requests type. If an existing route matching to one you try to add
 * it will be overwritten.
 *
-* @param {string} Doubled escape route regex
-* @param {function(Object, http.ServerRequest, http.ServerResponse)}
+* @param {string} regexString Doubled escape route regex
+* @param {function(Object, http.ServerRequest, http.ServerResponse)} func
 * @public
 */
 duality.prototype.any = function(regexString, func) {
@@ -428,8 +427,8 @@ duality.prototype.any = function(regexString, func) {
 * PUT requests. If an existing route matching to one you try to add
 * it will be overwritten.
 *
-* @param {string} Doubled escape route regex
-* @param {function(Object, http.ServerRequest, http.ServerResponse)}
+* @param {string} regexString Doubled escape route regex
+* @param {function(Object, http.ServerRequest, http.ServerResponse)} func
 * @public
 */
 duality.prototype.put = function(regexString, func) {
@@ -439,6 +438,105 @@ duality.prototype.put = function(regexString, func) {
 	};
 };
 
+/**
+* Emit a 404 error to the client and terminate the request.
+* If request has json as accepted content type, this is ackownledged.
+* 
+* @param {http.ServerRequest} req The servers request object
+* @param {http.ServerResponse} res The servers response object
+* @param {string=} opt_custom_msg Optional message to replace the std error 404
+* @param {string=} opt_std_err_msg Optional message to print to std. err.
+*/
+duality.prototype.notFound = function(req, res, opt_custom_msg, opt_std_err_msg) {
+    opt_custom_msg = opt_custom_msg ? opt_custom_msg : "The resource you were looking for was not found on the server.";
+    if (opt_std_err_msg) console.error(opt_std_err_msg);
+    
+	if (req.headers['accept'] == 'application/json' || req.headers['content-type'] == 'application/json') {
+        res.writeHead(404,{'Content-Type':'application/json'});
+        res.end(JSON.stringify({'error':'404','msg':opt_custom_msg}));
+    }
+    else {
+        res.writeHead(404,{'Content-Type':'text/html'});
+        res.end("<h1>Not Found</h1><p>"+opt_custom_msg+"</p>");
+    }
+};
+
+
+/**
+ * Emit an access denied error to the client. Either in html or JSON.
+ * This should be used when authorization is needed. 
+ * will terminate the request.
+ * 
+ * @public
+ * @param {http.ServerRequest} req The server request object
+ * @param {http.ServerResponse} res The server response object
+ * @param {string=} opt_custom_msg A custom error text
+ * @param {string=} opt_std_err An optional text to emit ot std. err.
+ */
+duality.prototype.accessDenied = function(req, res, opt_custom_msg, opt_std_err){
+    opt_custom_msg = opt_custom_msg ? opt_custom_msg : "You are not authorized to access the requested resource.";
+    if (opt_std_err) console.error(opt_std_err);
+    
+	if (req.headers['accept'] == 'application/json' || req.headers['content-type'] == 'application/json') {
+        res.writeHead(401,{'Content-Type':'application/json'});
+        res.end(JSON.stringify({'error':'401','msg':opt_custom_msg}));
+    }
+    else {
+        res.writeHead(401,{'Content-Type':'text/html'});
+        res.end("<h1>Not Authorized</h1><p>"+opt_custom_msg+"</p>");
+    }
+};
+
+
+/**
+ * Emit a forbidden error to the client. Either in html or JSON.
+ * This should be used when is not allowed to access a resource and never will
+ * be. Will terminate the request.
+ * 
+ * @public
+ * @param {http.ServerRequest} req The server request object
+ * @param {http.ServerResponse} res The server response object
+ * @param {string=} opt_custom_msg A custom error text
+ * @param {string=} opt_std_err An optional text to emit ot std. err.
+ */
+duality.prototype.forbidden = function(req, res, opt_custom_msg, opt_std_err){
+    opt_custom_msg = opt_custom_msg ? opt_custom_msg : "You are not allowed to access the requested resource.";
+    if (opt_std_err) console.error(opt_std_err);
+    
+	if (req.headers['accept'] == 'application/json' || req.headers['content-type'] == 'application/json') {
+        res.writeHead(403,{'Content-Type':'application/json'});
+        res.end(JSON.stringify({'error':'403','msg':opt_custom_msg}));
+    }
+    else {
+        res.writeHead(403,{'Content-Type':'text/html'});
+        res.end("<h1>Forbidden Resource</h1><p>"+opt_custom_msg+"</p>");
+    }
+};
+
+/**
+ * Emit a bad request error to the client. Either in html or JSON.
+ * This should be used when the client has used a malformed request 
+ * and wrong input or syntax. Will terminate the request.
+ * 
+ * @public
+ * @param {http.ServerRequest} req The server request object
+ * @param {http.ServerResponse} res The server response object
+ * @param {string=} opt_custom_msg A custom error text
+ * @param {string=} opt_std_err An optional text to emit ot std. err.
+ */
+duality.prototype.badRequest = function(req, res, opt_custom_msg, opt_std_err){
+    opt_custom_msg = opt_custom_msg ? opt_custom_msg : "The request parameters was malformed and could not be understood.";
+    if (opt_std_err) console.error(opt_std_err);
+    
+	if (req.headers['accept'] == 'application/json' || req.headers['content-type'] == 'application/json') {
+        res.writeHead(400,{'Content-Type':'application/json'});
+        res.end(JSON.stringify({'error':'400','msg':opt_custom_msg}));
+    }
+    else {
+        res.writeHead(400,{'Content-Type':'text/html'});
+        res.end("<h1>Bad Request</h1><p>"+opt_custom_msg+"</p>");
+    }
+};
 
 /**
 * Create a HASH to use with the HTTP AUth for this server. A list of allowed users for 
