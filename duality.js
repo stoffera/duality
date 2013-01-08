@@ -76,6 +76,7 @@ var duality = function(serve_directory, opt_routes_table, opt_options) {
 	
 	//Assign any options provided
 	if (opt_options) {
+		this.routesIgnoreQueryString = opt_options['routesIgnoreQueryString'] != undefined ? opt_options['routesIgnoreQueryString'] : this.routesIgnoreQueryString;
 		this.serverPort = opt_options['serverPort'] || this.serverPort;
 		this.useSessions = opt_options['useSessions']!=undefined ? opt_options['useSessions'] : this.useSessions;
 		this.sessionIdentifier = opt_options['sessionIdentifier'] || this.sessionIdentifier;
@@ -128,6 +129,19 @@ duality.prototype.serverPort = 8080;
 * @type {boolean} 
 */
 duality.prototype.useSessions = true;
+
+/**
+* Set this to true to strip query strings in incomming URLs from the
+* route matching. This means routes depending on the existence of query
+* strings will never be matched.
+* If active you can still access the query string content from inside your
+* route functions by using the http.ServerRequest object. 
+* This ignore function is useful is you need to catch JSONP callbacks in the request.
+*
+* @public
+* @type {boolean}
+*/
+duality.prototype.routesIgnoreQueryString = false;
 
 /**
 * Name identifier of the cookie string that holds the session
@@ -267,9 +281,18 @@ duality.prototype.incomeRequest = function(req, res) {
 	}
 	
 	//Try to match a route from the URL
+	var matchURL;
+	if (this.routesIgnoreQueryString) {
+		matchURL = d.url.parse(req.url);
+		matchURL = matchURL.pathname;
+	}
+	else {
+		matchURL = req.url;
+	}
+
 	var matched = false;
 	for (var route in this.routes) {
-		var match = req.url.match(route);
+		var match = matchURL.match(route);
 		if (match != null) {
 			if (this.routes[route].method.toLowerCase() == req.method.toLowerCase()
 				|| this.routes[route].method.toLowerCase() == "any" 
@@ -436,6 +459,23 @@ duality.prototype.put = function(regexString, func) {
 		func: func,
 		method: 'put'
 	};
+};
+
+
+/**
+* Detects if the request is a JSONP request. This means it has a callback function
+* defnied in its query string. This method only tells you JSONP is requested, it 
+* does not encapsulate your response in a JS function for you. You must do 
+* that yourself. The default callback function name is "callabck".
+*
+* @param {http.ServerRequest} req the incomming request to check
+* @param {string=} opt_callbackName Provide a custom name of the callback function
+* @return {boolean|string} the callback value if the request contains a JSONP callback, false otherwise
+*/
+duality.prototype.detectJsonp = function(req, opt_callbackName) {
+	if (!opt_callbackName)  opt_callbackName = "callback";
+	var u = d.url.parse(req.url, true);
+	return (!u.query[opt_callbackName]) ? false : u.query[opt_callbackName];
 };
 
 /**
