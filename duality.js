@@ -619,11 +619,11 @@ duality.prototype.parseDigest = function(req, res) {
 */
 duality.prototype.logRequest = function(req) {
 	var d = new Date();
-	var log = d.toUTCString()+" - "+req.method+" "+req.url+" ("+req.headers['user-agent']+")";
+	var log = d.toUTCString()+", "+req.method+", "+req.url+", "+req.connection.remoteAddress+", "+req.headers['user-agent'];
 	if (req.currentSession && req.currentSession.login)
-		log = log + " session: "+req.currentSession.login;
+		log = log + ", "+req.currentSession.login;
 	
-	console.log(log);
+	console.log(log+";");
 };
 
 /**
