@@ -31,14 +31,14 @@ Along with these features comes a lot of handy options you can control. Such as 
 
 Documentation
 ========
-* [Installation](wiki/installation)
-* [Examples](wiki/examples)
-* [Getting Started](wiki/getting-started)
-    * [Routes](wiki/routes)
-    * [Serving the content of a file](wiki/serving-a-file)
-    * [Sessions](wiki/sessions)
-    * [Access Control](wiki/access-control)
-* [API Reference](wiki/api-reference)
+* [Installation](http://github.com/stoffera/duality/wiki/installation)
+* [Examples](http://github.com/stoffera/duality/wiki/examples)
+* [Getting Started](http://github.com/stoffera/duality/wiki/getting-started)
+    * [Routes](http://github.com/stoffera/duality/wiki/routes)
+    * [Serving the content of a file](http://github.com/stoffera/duality/wiki/serving-a-file)
+    * [Sessions](http://github.com/stoffera/duality/wiki/sessions)
+    * [Access Control](http://github.com/stoffera/duality/wiki/access-control)
+* [API Reference](http://github.com/stoffera/duality/wiki/api-reference)
 
 License
 =======
